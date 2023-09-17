@@ -40,25 +40,32 @@ const logger = winston.createLogger({
 });
 
 async function initializeApp() {
-    const overflowQueue = await OverflowQueueHandler.initialize(workerFunction, concurrency);
-    const jobCoordinator = new JobCoordinator(sessionManager, overflowQueue);
-    await LavinMQWorkerQueueHandler.initialize();
+    try {
+        const overflowQueue = await OverflowQueueHandler.initialize(workerFunction, concurrency);
+        const jobCoordinator = new JobCoordinator(sessionManager, overflowQueue);
+        await LavinMQWorkerQueueHandler.initialize();
 
-    app.use(helmet());
-    app.use(cors(corsOptions));
-    app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
-    app.use(express.json());
+        app.use(helmet());
+        app.use(cors(corsOptions));
+        app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
+        app.use(express.json());
 
-    app.get('/listen-for-results/:jobID', streamResultsEndpoint);
-    LavinMQWorkerQueueHandler.consumeImageGenerationTasks(consumeImageTasks);
-    app.post('/submit-to-broker', submitToBrokerEndpoint);
+        app.get('/listen-for-results/:jobID', streamResultsEndpoint);
+        LavinMQWorkerQueueHandler.consumeImageGenerationTasks(consumeImageTasks);
+        app.post('/submit-to-broker', submitToBrokerEndpoint);
 
-    app.use(errorHandler);
+        app.use(errorHandler);
 
-    const PORT = Number(process.env.PORT) || 3001;
-    app.listen(PORT, () => {
-        logger.info(`Server is running on port ${PORT}`);
-    });
+        const PORT = Number(process.env.PORT) || 3001;
+        app.listen(PORT, () => {
+            logger.info(`Server is running on port ${PORT}`);
+        });
+
+        // Debugging to verify the correct ALLOWED_ORIGIN
+        console.log("ALLOWED_ORIGIN:", process.env.ALLOWED_ORIGIN);
+    } catch (error) {
+        logger.error("Failed to initialize the application:", error);
+    }
 }
 
 function streamResultsEndpoint(req, res) {
