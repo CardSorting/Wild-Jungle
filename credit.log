@@ -1,0 +1,3 @@
+{"level":30,"time":1694926985349,"pid":7121,"hostname":"8c095515ed83","msg":"Initializing SQLite database at /home/runner/Wild-Jungle/sqlite/credits.db"}
+{"level":30,"time":1694926985353,"pid":7121,"hostname":"8c095515ed83","msg":"Ensuring UserCredits table exists"}
+{"level":30,"time":1694926985354,"pid":7121,"hostname":"8c095515ed83","msg":"CreditManager instance created."}
